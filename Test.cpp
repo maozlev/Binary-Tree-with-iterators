@@ -9,8 +9,8 @@ using namespace ariel;
 using namespace std;
 
 TEST_CASE("build tree - int"){
+   
     BinaryTree<int> Tree_int;
-
     CHECK_NOTHROW(Tree_int.add_root(0));
     CHECK_NOTHROW(Tree_int.add_left(0,2));
     CHECK_NOTHROW(Tree_int.add_right(0,3));
