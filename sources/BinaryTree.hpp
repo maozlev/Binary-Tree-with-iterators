@@ -16,12 +16,10 @@ namespace ariel{
     
         struct Node {
         T data;
-        bool is_printed_in = false;
-        bool is_printed_post = false;
+        bool is_printed = false;
         Node *left = nullptr;
         Node *right = nullptr;
-        Node(T info): data(info), left(nullptr), right(nullptr), is_printed_in(false),
-        is_printed_post(false) {}
+        Node(T info): data(info), left(nullptr), right(nullptr), is_printed(false){}
         };
         Node *root=nullptr;
 
@@ -93,21 +91,16 @@ namespace ariel{
             private:
                 int Order;
                 std::stack<Node*> s;
-                std::queue<Node*> q;
+                std::stack<Node*> out;
                 Node* p;
 
             public:
 
                 void clean_nodes(Node* t){
                     if(t != nullptr){
-                        t->is_printed_in = false;
-                        t->is_printed_post = false;
-                        if(t->left != nullptr){
-                            clean_nodes(t->left);
-                        }
-                        if(t->right != nullptr){
-                            clean_nodes(t->right);
-                        }
+                        t->is_printed = false;  
+                        clean_nodes(t->left);
+                        clean_nodes(t->right);
                     }
                     return;      
                 }
@@ -121,8 +114,8 @@ namespace ariel{
 
                 iterator(int order, Node* ptr=nullptr):p(ptr) {
                     Order = order;
+                    clean_nodes(p);
                     if(p!=nullptr){
-                        clean_nodes(p);
                         if(order == 0){ //preorder
                             if(p->right!=nullptr){
                                 s.push(p->right);
@@ -137,112 +130,127 @@ namespace ariel{
                                 p = p->left;
                             }
                             p = s.top();
-                            p->is_printed_in = true;
+                            p->is_printed = true;
                             s.pop();
                         }                            
                         
                         else if(order == 2){    //postorder
-                            while(p != nullptr){
-                                s.push(p);
-                                p = p->left;
+                            s.push(p); 
+                            while (!s.empty()){
+                                Node* curr = s.top();
+                                s.pop();
+                                out.push(curr);
+                                if (curr->left) {
+                                    s.push(curr->left);
+                                }
+                                if (curr->right) {
+                                    s.push(curr->right);
+                                }
                             }
-                            p = s.top();
-                            p->is_printed_post = true;
-                            s.pop();
-                        }    
+                            p = out.top();
+                            out.pop();    
+                        }     
                     }
                 }
 
                 // pre fix ++i;
                 iterator& operator++() {
-                    if(s.empty()){
-                        p = nullptr;
-                        return *this;
-                    }
-                    
-                    if(Order == 0){ // pre order
-                        p = s.top();
-                        s.pop();
-                        if(p->right != nullptr){
-                            s.push(p->right);
-                        }
-                        if(p->left != nullptr){
-                            s.push(p->left);
-                        }
-                        return *this;
-                    }
-
-                    else if(Order == 1){ // in order
-                        p = s.top();
-                        s.pop();
+                    if(!s.empty() || !out.empty()){
+                        if(Order == 0){ // pre order
+                            p = s.top();
+                            s.pop();
                             if(p->right != nullptr){
-                                if(!p->right->is_printed_in){
-                                    Node* tmp = p->right;
-                                    s.push(p->right);
-                                    p->right->is_printed_in = true;
-                                    while(tmp->left != nullptr){
-                                        tmp = tmp->left;
-                                        s.push(tmp);
-                                        tmp->is_printed_in = true;
-                                    }
-                                }
+                                s.push(p->right);
                             }
                             if(p->left != nullptr){
-                                if(!p->left->is_printed_in){
-                                    s.push(p->left);
-                                    p->left->is_printed_in = true;
-                                }
+                                s.push(p->left);
                             }
-                        p->is_printed_in = true;
-                        return *this;
-                    }
-                    else if(Order == 2){ // post order
-                        p = s.top();
-                        if(p->is_printed_post){
+                            return *this;
+                        }
+
+                        else if(Order == 1){ // in order
+                            p = s.top();
                             s.pop();
+                                if(p->right != nullptr){
+                                    if(!p->right->is_printed){
+                                        Node* tmp = p->right;
+                                        s.push(p->right);
+                                        p->right->is_printed = true;
+                                        while(tmp->left != nullptr){
+                                            tmp = tmp->left;
+                                            s.push(tmp);
+                                            tmp->is_printed = true;
+                                        }
+                                    }
+                                }
+                                if(p->left != nullptr){
+                                    if(!p->left->is_printed){
+                                        s.push(p->left);
+                                        p->left->is_printed = true;
+                                    }
+                                }
+                            p->is_printed = true;
+                            return *this;
                         }
-                        p = s.top();
-                        s.pop();
-                        Node* tmp = p;
-                        if(p->right != nullptr && !p->right->is_printed_post){
-                            if(!p->is_printed_post){
-                                s.push(p);
-                                p->is_printed_post = true;
-                            } 
-                            s.push(p->right);
-                            p->right->is_printed_post = true;
-                            tmp = p->right;
+                        else if(Order == 2){ // post order
+                            p = out.top();
+                            out.pop();
+                            return *this;
                         }
-                        if(p->left != nullptr && !p->left->is_printed_post){
-                            if(!p->is_printed_post){
-                                s.push(p);
-                                p->is_printed_post = true;
-                            }
-                            s.push(p->left);
-                            p->left->is_printed_post = true;
-                            tmp = p->left;
-                        }
-                        p = tmp;
-                        return *this;
-                    }
+
+                    }    
+                    p = nullptr;
                     return *this;
                 }
                     
                 // post fix i++;
                 const iterator operator++(int) {
                     iterator tmp = *this;
-                        if(s.empty()){
-                            p = nullptr;
+                    if(!s.empty() || !out.empty()){
+                        if(Order == 0){ // pre order
+                            p = s.top();
+                            s.pop();
+                            if(p->right != nullptr){
+                                s.push(p->right);
+                            }
+                            if(p->left != nullptr){
+                                s.push(p->left);
+                            }
                             return tmp;
                         }
-                        p = s.top();
-                        s.pop();
-                        if(p->right != nullptr){
-                            s.push(p->right);
+
+                        else if(Order == 1){ // in order
+                            p = s.top();
+                            s.pop();
+                                if(p->right != nullptr){
+                                    if(!p->right->is_printed){
+                                        Node* tmp = p->right;
+                                        s.push(p->right);
+                                        p->right->is_printed = true;
+                                        while(tmp->left != nullptr){
+                                            tmp = tmp->left;
+                                            s.push(tmp);
+                                            tmp->is_printed = true;
+                                        }
+                                    }
+                                }
+                                if(p->left != nullptr){
+                                    if(!p->left->is_printed){
+                                        s.push(p->left);
+                                        p->left->is_printed = true;
+                                    }
+                                }
+                            p->is_printed = true;
+                            return tmp;
                         }
-                        if(p->left != nullptr){
-                            s.push(p->left);
+                        else if(Order == 2){ // post order
+                            p = out.top();
+                            out.pop();
+                            return tmp;
                         }
+
+                    }    
+                    p = nullptr;
                     return tmp;
                 }
 
