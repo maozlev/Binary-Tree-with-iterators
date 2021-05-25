@@ -78,7 +78,7 @@ cout<<endl;
   cout<<endl;
 cout<<endl;
 
-  for (auto it=tree_of_strings.begin_preorder(); it!=tree_of_strings.end_preorder(); it++) {
+  for (auto it=tree_of_strings.begin_preorder(); it!=tree_of_strings.end_preorder(); ++it) {
     cout << (*it) << " " ;
   }  // prints: 1 2 4 5 3
   cout<<endl;

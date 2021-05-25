@@ -16,10 +16,9 @@ namespace ariel{
     
         struct Node {
         T data;
-        bool is_printed = false;
         Node *left = nullptr;
         Node *right = nullptr;
-        Node(T info): data(info), left(nullptr), right(nullptr), is_printed(false){}
+        Node(T info): data(info), left(nullptr), right(nullptr){}
         };
         Node *root=nullptr;
 
@@ -92,29 +91,13 @@ namespace ariel{
                 int Order;
                 std::stack<Node*> s;
                 std::stack<Node*> out;
+                std::queue<Node*> q;
                 Node* p;
 
             public:
 
-                void clean_nodes(Node* t){
-                    if(t != nullptr){
-                        t->is_printed = false;  
-                        clean_nodes(t->left);
-                        clean_nodes(t->right);
-                    }
-                    return;      
-                }
-                T& operator*() const {
-                    return p->data;
-                }
-
-                T* operator->() const {
-                    return &(p->data);
-                }
-
                 iterator(int order, Node* ptr=nullptr):p(ptr) {
                     Order = order;
-                    clean_nodes(p);
                     if(p!=nullptr){
                         if(order == 0){ //preorder
                             if(p->right!=nullptr){
@@ -124,15 +107,22 @@ namespace ariel{
                                 s.push(p->left);
                             }
                         }
-                        else if(order == 1){    //inorder
-                            while(p != nullptr){
-                                s.push(p);
-                                p = p->left;
+
+                         else if(order == 1){ //inorder
+                            Node* tmp = p;
+                            while (tmp != nullptr || !s.empty()) {
+                                while (tmp !=  nullptr) {
+                                    s.push(tmp);
+                                    tmp = tmp->left;
+                                }
+                                tmp = s.top();
+                                q.push(tmp);
+                                s.pop();
+                                tmp = tmp->right;
                             }
-                            p = s.top();
-                            p->is_printed = true;
-                            s.pop();
-                        }                            
+                            p = q.front();
+                            q.pop();
+                        }                                
                         
                         else if(order == 2){    //postorder
                             s.push(p); 
@@ -155,7 +145,7 @@ namespace ariel{
 
                 // pre fix ++i;
                 iterator& operator++() {
-                    if(!s.empty() || !out.empty()){
+                    if(!s.empty() || !out.empty() || !q.empty()){
                         if(Order == 0){ // pre order
                             p = s.top();
                             s.pop();
@@ -167,37 +157,16 @@ namespace ariel{
                             }
                             return *this;
                         }
-
-                        else if(Order == 1){ // in order
-                            p = s.top();
-                            s.pop();
-                                if(p->right != nullptr){
-                                    if(!p->right->is_printed){
-                                        Node* tmp = p->right;
-                                        s.push(p->right);
-                                        p->right->is_printed = true;
-                                        while(tmp->left != nullptr){
-                                            tmp = tmp->left;
-                                            s.push(tmp);
-                                            tmp->is_printed = true;
-                                        }
-                                    }
-                                }
-                                if(p->left != nullptr){
-                                    if(!p->left->is_printed){
-                                        s.push(p->left);
-                                        p->left->is_printed = true;
-                                    }
-                                }
-                            p->is_printed = true;
+                        else if(Order == 1){ // inorder
+                            p = q.front();
+                            q.pop();
                             return *this;
                         }
-                        else if(Order == 2){ // post order
+                        else{ // post order
                             p = out.top();
                             out.pop();
                             return *this;
                         }
-
                     }    
                     p = nullptr;
                     return *this;
@@ -206,7 +175,7 @@ namespace ariel{
                 // post fix i++;
                 const iterator operator++(int) {
                     iterator tmp = *this;
-                    if(!s.empty() || !out.empty()){
+                    if(!s.empty() || !out.empty() || !q.empty()){
                         if(Order == 0){ // pre order
                             p = s.top();
                             s.pop();
@@ -218,37 +187,16 @@ namespace ariel{
                             }
                             return tmp;
                         }
-
-                        else if(Order == 1){ // in order
-                            p = s.top();
-                            s.pop();
-                                if(p->right != nullptr){
-                                    if(!p->right->is_printed){
-                                        Node* tmp = p->right;
-                                        s.push(p->right);
-                                        p->right->is_printed = true;
-                                        while(tmp->left != nullptr){
-                                            tmp = tmp->left;
-                                            s.push(tmp);
-                                            tmp->is_printed = true;
-                                        }
-                                    }
-                                }
-                                if(p->left != nullptr){
-                                    if(!p->left->is_printed){
-                                        s.push(p->left);
-                                        p->left->is_printed = true;
-                                    }
-                                }
-                            p->is_printed = true;
+                         else if(Order == 1){ // inorder
+                            p = q.front();
+                            q.pop();
                             return tmp;
                         }
-                        else if(Order == 2){ // post order
+                        else{ // post order
                             p = out.top();
                             out.pop();
                             return tmp;
                         }
-
                     }    
                     p = nullptr;
                     return tmp;
@@ -260,6 +208,14 @@ namespace ariel{
 
                 bool operator!=(const iterator& other) const {
                     return p != other.p;
+                }
+                
+                T& operator*() const {
+                    return p->data;
+                }
+
+                T* operator->() const {
+                    return &(p->data);
                 }
             };  
 
