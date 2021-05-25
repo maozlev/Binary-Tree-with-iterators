@@ -209,7 +209,7 @@ namespace ariel{
                 bool operator!=(const iterator& other) const {
                     return p != other.p;
                 }
-                
+
                 T& operator*() const {
                     return p->data;
                 }
@@ -220,48 +220,50 @@ namespace ariel{
             };  
 
 
-            iterator begin_preorder(){
-                return iterator(0, root);
-            }
-            iterator end_preorder(){
-                return iterator(0, nullptr);
-            }
-            iterator begin_inorder(){
-                return iterator(1, root);
-            }
-            iterator end_inorder(){
-                return iterator(1, nullptr);
-            }
-            iterator begin_postorder(){
-                return iterator(2, root);
-            }
-            iterator end_postorder(){
-                return iterator(2, nullptr);
-            }
-            iterator begin(){
-                return iterator(1, root);
-            }
-            iterator end(){
-                return iterator(1, nullptr);
-            }
-
-            friend std::ostream& operator<<(std::ostream& os, const BinaryTree<T> &bt){
-                if (bt.root == NULL)
-                    return os;
-                std::stack<Node*> s;
-                s.push(bt.root);
-            
-                while (!s.empty()) {
-                    Node* node = s.top();
-                    os<<node->data<<" ";
-                    s.pop();
-                    if (node->right)
-                        s.push(node->right);
-                    if (node->left)
-                        s.push(node->left);
+        iterator begin_preorder(){
+            return iterator(0, root);
+        }
+        iterator end_preorder(){
+            return iterator(0, nullptr);
+        }
+        iterator begin_inorder(){
+            return iterator(1, root);
+        }
+        iterator end_inorder(){
+            return iterator(1, nullptr);
+        }
+        iterator begin_postorder(){
+            return iterator(2, root);
+        }
+        iterator end_postorder(){
+            return iterator(2, nullptr);
+        }
+        iterator begin(){
+            return iterator(1, root);
+        }
+        iterator end(){
+            return iterator(1, nullptr);
+        }
+        static void print(std::ostream& os, const std::string& prefix, const Node* node, bool isLeft){
+            if( node != nullptr ){
+                os << prefix;
+                os << (isLeft ? "├──" : "└──" );
+                os << node->data << std::endl;
+                print(os, prefix + (isLeft ? "│   " : "    "), node->left, true);
+                print(os, prefix + (isLeft ? "│   " : "    "), node->right, false);
                 }
+        }
+
+        static void print(std::ostream& os, const Node* node){
+            print(os, "", node, false);    
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const BinaryTree<T> &bt){
+            if (bt.root == nullptr){
                 return os;
             }
-
+            print(os, bt.root);
+            return os;
+        }
     };
 }
