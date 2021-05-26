@@ -262,7 +262,9 @@ namespace ariel{
             if (bt.root == nullptr){
                 return os;
             }
+            os<<std::endl;
             print(os, bt.root);
+            os<<std::endl;
             return os;
         }
     };
