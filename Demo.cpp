@@ -30,10 +30,10 @@ int main() {
         |---|
         4   5
   */
-
+  
   for (auto it=tree_of_ints.begin_preorder(); it!=tree_of_ints.end_preorder(); ++it) {
     cout << (*it) << " " ;
-  }  // prints: 1 2 4 5 3
+  }  // prints: 1 2 5 4 3
   for (auto it=tree_of_ints.begin_inorder(); it!=tree_of_ints.end_inorder(); ++it) {
     cout << (*it) << " " ;
   }  // prints: 4 2 5 1 3 
