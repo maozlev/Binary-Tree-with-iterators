@@ -142,8 +142,7 @@ namespace ariel{
                 add(daddy, son, false);
                 return *this;
             }
-
-            BinaryTree& operator=(const BinaryTree &second) {
+            BinaryTree &operator=(BinaryTree second){
                 if(this == &second){
                     return *this;
                 }
