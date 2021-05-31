@@ -13,7 +13,10 @@ HEADERS=$(wildcard $(SOURCE_PATH)/*.hpp)
 OBJECTS=$(subst sources/,objects/,$(subst .cpp,.o,$(SOURCES)))
 
 run: test1 test2 test3
-
+	
+test: TestRunner.o Test.o  $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $^ -o $@	
+	
 test1: TestRunner.o StudentTest1.o  $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
@@ -25,7 +28,7 @@ test3: TestRunner.o StudentTest3.o  $(OBJECTS)
 
 demo: Demo.o $(OBJECTS) 
 	$(CXX) $(CXXFLAGS) $^ -o $@
-
+	
 
 StudentTest1.cpp:  # Michael Trushkin
 	curl https://raw.githubusercontent.com/miko-t/binaryTreeCpp/main/Test.cpp > $@
