@@ -51,8 +51,7 @@ using namespace std;
             if(!check_preOrder.empty()){
                 CHECK_EQ(*(it) , check_preOrder.top());
                 check_preOrder.pop();
-            }
-              
+            }  
         }
 
         check_inOrder.push(11);
@@ -74,7 +73,6 @@ using namespace std;
                 CHECK_EQ(*(it) , check_inOrder.top());
                 check_inOrder.pop();
             }
-              
         } 
 
         check_postOrder.push(1);
@@ -93,16 +91,14 @@ using namespace std;
             if(!check_postOrder.empty()){
                 CHECK_EQ(*(it) , check_postOrder.top());
                 check_postOrder.pop();
-            }
-              
+            }     
         }
  
         for (auto it=tree_of_ints.begin(); it!=tree_of_ints.end(); ++it) {
             if(!check_inOrder_copy.empty()){
                 CHECK_EQ(*(it) , check_inOrder_copy.top());
                 check_inOrder_copy.pop();
-            }
-              
+            } 
         } 
 
 

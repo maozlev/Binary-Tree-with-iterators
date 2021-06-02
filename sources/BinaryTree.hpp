@@ -23,12 +23,24 @@ namespace ariel{
         };
         Node *root=nullptr;
         
-        stack<Node*> stack_nodes;
 
         public:
-            // BinaryTree&();
-            // BinaryTree&(const BinaryTree&& other);
-            // ~BinaryTree&();
+        
+        BinaryTree(){
+                root = nullptr;
+            }
+
+            BinaryTree(const BinaryTree& other){
+                T t = other.root->data;
+                root = new Node(t);
+                copy_tree(*root, *other.root);
+            }
+
+            BinaryTree(BinaryTree &&tree) noexcept {
+                root = tree.root;
+                tree.root = nullptr;
+            }
+
 
             void copy_tree(Node &newroot, const Node &origin_root){
                 if (origin_root.left != nullptr){
@@ -41,27 +53,10 @@ namespace ariel{
                 }
             }
             
-            BinaryTree(){
-                root = nullptr;
-            }
-
-            BinaryTree(const BinaryTree& other){
-                // cout << "copy constructor doing deep copy" << endl;
-                T t = other.root->data;
-                root = new Node(t);
-                copy_tree(*root, *other.root);
-            }
-
-            BinaryTree(BinaryTree &&tree) noexcept {
-                root = tree.root;
-                tree.root = nullptr;
-            }
-
-  
             BinaryTree& add_root(const T& data){
                 if(root==nullptr){
                     root = new Node(data);
-                    stack_nodes.push(root);   
+
                 }
                 else{
                     root->data=data;
@@ -69,11 +64,7 @@ namespace ariel{
                 return *this;
             }
             
-            ~BinaryTree(){
-                if(root != nullptr){
-                    delete root;
-                }
-            }
+            
 
             T find_daddy(Node* p, const T& son){
                 if(p->left->data == son){
@@ -142,6 +133,7 @@ namespace ariel{
                 add(daddy, son, false);
                 return *this;
             }
+            
             BinaryTree &operator=(BinaryTree second){
                 if(this == &second){
                     return *this;
@@ -158,6 +150,12 @@ namespace ariel{
                 }
                 root = tree.root;
                 tree.root = nullptr;
+            }
+
+            ~BinaryTree(){
+                if(root != nullptr){
+                    delete root;
+                }
             }
 
         class iterator{
